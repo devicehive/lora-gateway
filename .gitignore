@@ -1,0 +1,9 @@
+.DS_Store
+*.pyc
+*.tar.gz
+build/
+lora-demo-device/*.hex
+lora-gateway-firmware/*.hex
+lora-gateway-software/.idea
+lora-gateway-software/config.json
+
