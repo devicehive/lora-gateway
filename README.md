@@ -42,6 +42,7 @@ microcontroller part of the gateway.
 Gateway boots automatically on power on. It works on specfied in config frequency and
 receives all LoRa packages which send to DeviceHive server as notifications. Notification
 name is always `LoRa`.  Parameters contains field `data` which is the data that was received.
+'rssi' field means received signal strength indicator, units are dBm.
 Example:
 ```json
 {
@@ -52,7 +53,8 @@ Example:
            "A2":1.48,
            "A5":0.64,
            "A4":1.15
-  }
+  },
+  "rssi": -45
 }
 ```
 If LoRa data is a json it will be json object in this field. If LoRa data is a string or raw data it
