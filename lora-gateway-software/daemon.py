@@ -238,11 +238,6 @@ class Daemon(HTTPServer):
             self.devicehive.handler.send_notification(data)
 
 
-def encode_string(s):
-    return ''.join(c if 31 < ord(c) < 127 else r'\x{0:02x}'
-                   .format(ord(c)) for c in s)
-
-
 def decode_string(s):
     return s.decode("string_escape")
 
@@ -265,4 +260,4 @@ def run():
     while True:
         s = raw_input()
         if s[:len(DATA_PREFIX)] == DATA_PREFIX:
-            d.send(encode_string(s[len(DATA_PREFIX):]))
+            d.send(s[len(DATA_PREFIX):])

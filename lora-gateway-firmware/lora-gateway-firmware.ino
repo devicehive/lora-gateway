@@ -43,7 +43,7 @@ void setup() {
 
 void loop() {
   char data[256 + sizeof(prefix_data)];
-  unsigned int pos = 0;
+  unsigned int pos;
   // try to parse packet and send to DeviceHive
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
@@ -54,8 +54,18 @@ void loop() {
     // read packet
     while (LoRa.available()) {
       char c = (char)LoRa.read();
-      deviceHive.write(c);
-      Console.print(c);
+      if (31 < c && c < 127) {
+        deviceHive.write(c);
+        Console.print(c);
+      } else {
+        snprintf(data, sizeof(data), "\\x%x", c);
+        pos = 0;
+        while (data[pos]) {
+          deviceHive.write(data[pos]);
+          Console.print(data[pos]);
+          pos++;
+        }
+      }
     }
     deviceHive.write('\n');
     deviceHive.flush();
@@ -64,7 +74,7 @@ void loop() {
     digitalWrite(ledPin, LOW);
   }
 
-
+  pos = 0;
   while (deviceHive.available()) {
     data[pos] = (char)deviceHive.read();
     pos++;
