@@ -48,9 +48,18 @@ void loop() {
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
     digitalWrite(ledPin, HIGH);
-    Console.print("Received packet '");
+    Console.print("Received packet with RSSI ");
 
     deviceHive.print(prefix_data);
+    snprintf(data, sizeof(data), "%d", LoRa.packetRssi());
+    pos = 0;
+    while (data[pos]) {
+      deviceHive.write(data[pos]);
+      Console.print(data[pos]);
+      pos++;
+    }
+    deviceHive.print("|");
+    Console.print(" '");
     // read packet
     while (LoRa.available()) {
       char c = (char)LoRa.read();

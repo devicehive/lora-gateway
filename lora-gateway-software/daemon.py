@@ -66,12 +66,14 @@ class DeviceHiveHandler(Handler):
             command.status = "Error, no data"
         command.save()
 
-    def send_notification(self, data):
+    def send_notification(self, data, rssi):
         if self._device is not None:
             try:
                 obj = {"data": json.loads(data)}
             except ValueError:
                 obj = {"data": data}
+            if rssi is not None:
+                obj["rssi"] = rssi
             self._device.send_notification(NOTIFICATION_NAME, obj)
 
 
@@ -184,7 +186,7 @@ class ConfigHandler(BaseHTTPRequestHandler):
             self.wfile.write("<br><a href='/'>Go back</a>")
             self.wfile.write("</font></body></html>")
 
-    def log_message(self, format, *args):
+    def log_message(self, fmt, *args):
         return
 
 
@@ -192,6 +194,7 @@ class Daemon(HTTPServer):
     def __init__(self, data_callback, config_callback):
         self.__data_callback = data_callback
         self.__config_callback = config_callback
+        self._devicehive_thread = None
         self.devicehive = None
         self.state = State(self.update_config)
         self.state.load()
@@ -232,17 +235,17 @@ class Daemon(HTTPServer):
     def close(self):
         self.shutdown()
 
-    def send(self, data):
+    def send(self, data, rssi):
         if self.state.is_connected and self.devicehive is not None \
                 and self.devicehive.handler is not None:
-            self.devicehive.handler.send_notification(data)
+            self.devicehive.handler.send_notification(data, rssi)
 
 
 def decode_string(s):
     return s.decode("string_escape")
 
 
-def receive_cb(data):
+def receive_callback(data):
     if isinstance(data, dict):
         sys.stdout.write(DATA_PREFIX + decode_string(json.dumps(data)))
     else:
@@ -256,8 +259,9 @@ def config_cb(data):
 
 
 def run():
-    d = Daemon(receive_cb, config_cb)
+    d = Daemon(receive_callback, config_cb)
     while True:
         s = raw_input()
         if s[:len(DATA_PREFIX)] == DATA_PREFIX:
-            d.send(s[len(DATA_PREFIX):])
+            rssi, data = s[len(DATA_PREFIX):].split('|', 1)
+            d.send(data, float(rssi))
