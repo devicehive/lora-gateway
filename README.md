@@ -23,7 +23,7 @@ rm -rf devicehive-python-2.1.0/
 ```
 - Copy gateway package:
 ```bash
-mkdir -p /opt/devicehive && curl -SL https://github.com/devicehive/lora-gateway/releases/download/v0.0.1/gateway.tar.gz | tar zx -C /opt/devicehive
+mkdir -p /opt/devicehive && curl -SL https://github.com/devicehive/lora-gateway/releases/download/v0.0.2/gateway.tar.gz | tar zx -C /opt/devicehive
 ```
 - Install it with:
 ```bash
